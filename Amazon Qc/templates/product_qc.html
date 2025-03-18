@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Image QC</title>
+
+    <style>
+        /* ✅ Center Content */
+        .upload-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        /* ✅ Text Container */
+        .text-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .text-container h1 {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .text-container p {
+            font-size: 16px;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ✅ Upload Box */
+        .upload-box {
+            width: 500px;
+            height: 250px;
+            border-radius: 44px;
+            border: 1px dashed #000;
+            text-align: center;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        .upload-box img {
+            width: 70px;
+            height: auto;
+        }
+
+        .upload-box p {
+            color: #969696;
+            font-size: 18px;
+            margin: 5px 0;
+        }
+
+        /* ✅ Browse Files Button */
+        .browse-btn {
+            display: inline-block;
+            border-radius: 19.5px;
+            border: 1px solid #014AB7;
+            background: rgba(255, 255, 255, 0.00);
+            color: #014AB7;
+            font-size: 16px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        /* ✅ Hide Default File Input */
+        #file-upload {
+            display: none;
+        }
+
+        /* ✅ Image Preview Grid */
+        #image-preview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* ✅ Image & QC Container */
+        .image-qc-container {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            overflow: hidden;
+            min-height: 180px;
+        }
+
+        .image-qc-container img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+
+        .qc-result {
+            flex-grow: 1;
+            min-height: 150px;
+            padding-left: 10px;
+            font-size: 14px;
+        }
+
+        /* ✅ QC Text Styles */
+        .qc-pass {
+            color: green;
+        }
+
+        .qc-fail {
+            color: red;
+        }
+
+        /* ✅ Black File Name */
+        .qc-filename {
+            color: black !important;
+            font-weight: bold;
+        }
+
+        /* ✅ Responsive Layout */
+        @media (max-width: 900px) {
+            #image-preview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            #image-preview {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ Text Section -->
+    <div class="text-container">
+        <h1>Ensure Your Product Images Meet Amazon’s Standards</h1>
+        <p>Upload your product images to check if they meet the required resolution, format, and quality standards.</p>
+    </div>
+
+    <div class="upload-container">
+        <label for="file-upload" class="upload-box" id="drop-area">
+            <img src="/static/upload-icon.png" alt="Upload Icon">
+            <p>Drag & Drop Images Here</p>
+            <p>Or</p>
+            <span class="browse-btn">Browse Files</span>
+            <input id="file-upload" type="file" name="image" multiple required>
+        </label>
+    </div>
+
+    <!-- ✅ Image & QC Result Section -->
+    <div id="image-preview"></div>
+
+    <script>
+        const dropArea = document.getElementById("drop-area");
+        const fileInput = document.getElementById("file-upload");
+        const imagePreview = document.getElementById("image-preview");
+
+        dropArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropArea.classList.add("drag-over");
+        });
+
+        dropArea.addEventListener("dragleave", () => {
+            dropArea.classList.remove("drag-over");
+        });
+
+        dropArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropArea.classList.remove("drag-over");
+
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileUpload(fileInput.files);
+            }
+        });
+
+        document.querySelector(".browse-btn").addEventListener("click", () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", function () {
+            handleFileUpload(fileInput.files);
+        });
+
+        function handleFileUpload(files) {
+            imagePreview.innerHTML = "";
+
+            for (const file of files) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+
+                reader.onload = function (e) {
+                    const container = document.createElement("div");
+                    container.classList.add("image-qc-container");
+
+                    const img = document.createElement("img");
+                    img.src = e.target.result;
+
+                    const qcBox = document.createElement("div");
+                    qcBox.classList.add("qc-result");
+
+                    validateImage(file, img, qcBox);
+
+                    container.appendChild(img);
+                    container.appendChild(qcBox);
+                    imagePreview.appendChild(container);
+                };
+            }
+        }
+
+        function validateImage(file, imgElement, qcBox) {
+            const validFormat = "image/jpeg"; // ✅ Strictly JPEG
+            const maxFileSize = 10 * 1024 * 1024; // ✅ Strictly under 10MB
+            const strictWidth = 2000;
+            const strictHeight = 2000;
+            const strictAspectRatio = 1.00;
+
+            let qcReport = `<p><strong class="qc-filename">File Name:</strong> <span class="qc-filename">${file.name}</span></p>`;
+
+            // ✅ Format Check (Only JPEG Allowed)
+            if (file.type !== validFormat) {
+                qcReport += `<p class="qc-fail">❌ Format Not Allowed (Only JPEG)</p>`;
+            } else {
+                qcReport += `<p class="qc-pass">✔ Format: JPEG</p>`;
+            }
+
+            // ✅ File Size Check (Under 10MB)
+            if (file.size > maxFileSize) {
+                qcReport += `<p class="qc-fail">❌ File Size Too Large (${(file.size / (1024 * 1024)).toFixed(2)}MB)</p>`;
+            } else {
+                qcReport += `<p class="qc-pass">✔ File Size: ${(file.size / (1024 * 1024)).toFixed(2)}MB</p>`;
+            }
+
+            // ✅ Resolution & Aspect Ratio Check
+            imgElement.onload = function () {
+                const width = imgElement.naturalWidth;
+                const height = imgElement.naturalHeight;
+                const aspectRatio = parseFloat((width / height).toFixed(2));
+
+                // Show ❌ if resolution is incorrect
+                qcReport += `<p class="${width !== strictWidth || height !== strictHeight ? 'qc-fail' : 'qc-pass'}">
+                    ${width !== strictWidth || height !== strictHeight ? '❌' : '✔'} Resolution: ${width} × ${height}
+                </p>`;
+
+                // Show ❌ if aspect ratio is incorrect
+                qcReport += `<p class="${aspectRatio !== strictAspectRatio ? 'qc-fail' : 'qc-pass'}">
+                    ${aspectRatio !== strictAspectRatio ? '❌' : '✔'} Aspect Ratio: ${aspectRatio}
+                </p>`;
+
+                qcBox.innerHTML = qcReport;
+            };
+        }
+    </script>
+</body>
+</html>

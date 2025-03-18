@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Amazon QC Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F7F8FC;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            flex-direction: column;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px; /* Adjust as needed */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .left {
+            width: 30%;
+            text-align: center;
+        }
+        .right {
+            width: 70%;
+            display: flex;
+            justify-content: center;
+        }
+        .right img {
+            width: 100%;
+            max-width: 800px; /* Adjust as needed */
+            height: auto;
+        }
+        h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .button {
+            display: block;
+            width: 180px;
+            padding: 12px 20px;
+            background-color: #000;
+            color: #ffffff;
+            border: none;
+            border-radius: 25px;
+            margin: 15px auto;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <h1>Amazon QC Tool</h1>
+            <a href="/product-qc" class="button">Product Images</a>
+            <a href="/a-plus-qc" class="button">A+ QC</a>
+        </div>
+        <div class="right">
+            <img src="/static/homepage-illustration.png" alt="QC Illustration">
+        </div>
+    </div>
+</body>
+</html>
